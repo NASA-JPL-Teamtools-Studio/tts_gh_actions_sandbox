@@ -1,0 +1,44 @@
+name: Remote File Creator
+on:
+  repository_dispatch:
+    types: [ping_from_web]
+  workflow_dispatch: # <--- This adds the "Run workflow" button in GitHub UI
+    inputs:
+      manual_message:
+        description: 'Optional message for the file'
+        required: false
+        default: 'Manual trigger'
+
+jobs:
+  create-file:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Create Unique File
+        run: |
+          # Generate timestamp
+          TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
+          FILENAME="log-${TIMESTAMP}.txt"
+          
+          # Logic to handle message from either Web or Manual trigger
+          # Use web payload if exists, otherwise use manual input, otherwise default
+          MSG="${{ github.event.client_payload.custom_message || github.event.inputs.manual_message || 'No message provided' }}"
+          
+          echo "File created at: ${TIMESTAMP}" > "$FILENAME"
+          echo "Message: $MSG" >> "$FILENAME"
+          
+          echo "FILE_CREATED=$FILENAME" >> $GITHUB_ENV
+
+      - name: Commit and Push
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add .
+          git commit -m "Added log: ${{ env.FILE_CREATED }}"
+          git push origin gh-pages
