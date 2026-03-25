@@ -109,5 +109,52 @@
         // Run on page load
         updateUI();
     </script>
+
+    <div class="card" style="margin-top: 20px;">
+        <h3>The "Do Something" Button</h3>
+        <button onclick="triggerAction()">🚀 Create File in Repo</button>
+        <p id="actionStatus" style="font-size: 0.9em; color: #555;"></p>
+    </div>
+
+    <script>
+        async function triggerAction() {
+            // 1. Setup - Update these!
+            const OWNER = 'NASA-JPL-Teamtools-Studio'; 
+            const REPO = 'tts_gh_actions_sandbox';
+            const TOKEN = localStorage.getItem('my_github_pat');
+            const statusEl = document.getElementById('actionStatus');
+
+            if (!TOKEN) {
+                alert("No token found! Save one in the box above first.");
+                return;
+            }
+
+            statusEl.innerText = "Sending request to GitHub...";
+
+            // 2. The API Call
+            try {
+                const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/dispatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        event_type: 'ping_from_web' // Must match the YAML 'on' type
+                    })
+                });
+
+                if (response.status === 204) {
+                    statusEl.innerHTML = "✅ <strong>Success!</strong> GitHub accepted the trigger. Check your 'Actions' tab in the repo!";
+                } else {
+                    const errorData = await response.json();
+                    statusEl.innerText = "❌ Error: " + (errorData.message || response.statusText);
+                }
+            } catch (err) {
+                statusEl.innerText = "❌ Network Error: " + err.message;
+            }
+        }
+    </script>
 </body>
 </html>
