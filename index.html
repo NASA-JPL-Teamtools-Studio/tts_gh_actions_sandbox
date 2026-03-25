@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAT Storage Experiment</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f6f8fa;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #d0d7de;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 10px 0; 
+            border: 1px solid #d0d7de; 
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button { 
+            background-color: #2ea44f; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button.secondary { background-color: #cf222e; }
+        .status-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #fff8c5;
+            border: 1px solid #d4a72c;
+            word-break: break-all;
+        }
+        .found { background: #dafbe1; border-color: #1a7f37; }
+        code { background: #eee; padding: 2px 4px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>GitHub PAT Tinkerer</h2>
+        <p>This page tests saving a <code>localStorage</code> variable. It stays in your browser and is never sent to a server (until you write the <code>fetch</code> code later).</p>
+        
+        <label for="patInput">Enter a string (e.g., your PAT):</label>
+        <input type="password" id="patInput" placeholder="ghp_xxxxxxxxxxxx">
+        
+        <button onclick="saveToken()">Save to LocalStorage</button>
+        <button onclick="clearToken()" class="secondary">Clear Storage</button>
+
+        <div id="displayArea" class="status-box">
+            Checking storage...
+        </div>
+    </div>
+
+    <script>
+        const KEY_NAME = 'my_github_pat';
+        const display = document.getElementById('displayArea');
+        const input = document.getElementById('patInput');
+
+        // 1. Function to check and update the UI
+        function updateUI() {
+            const storedValue = localStorage.getItem(KEY_NAME);
+
+            if (storedValue) {
+                display.classList.add('found');
+                // We show the first 4 chars so you know it's there without exposing it all
+                display.innerHTML = `<strong>Status:</strong> Variable found!<br>
+                                    <strong>Value:</strong> <code>${storedValue.substring(0, 4)}...</code><br>
+                                    <em>(Full value is ready for your GH Actions fetch calls)</em>`;
+            } else {
+                display.classList.remove('found');
+                display.innerHTML = `<strong>Status:</strong> Not found in storage.<br>
+                                    <em>Please enter a value and click Save.</em>`;
+            }
+        }
+
+        // 2. Function to save to storage
+        function saveToken() {
+            const val = input.value;
+            if (val) {
+                localStorage.setItem(KEY_NAME, val);
+                input.value = ''; // clear input for security
+                updateUI();
+                alert("Saved to your browser's local storage!");
+            }
+        }
+
+        // 3. Function to wipe storage
+        function clearToken() {
+            localStorage.removeItem(KEY_NAME);
+            updateUI();
+        }
+
+        // Run on page load
+        updateUI();
+    </script>
+</body>
+</html>
