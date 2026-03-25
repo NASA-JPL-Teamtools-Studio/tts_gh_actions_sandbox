@@ -1,0 +1,30 @@
+name: Table Updater
+on:
+  repository_dispatch:
+    types: [save_table]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Overwrite Table File
+        run: |
+          # The 'EOF' must be quoted to prevent shell expansion of the content
+          cat << 'EOF' > demo_table.md
+          ${{ github.event.client_payload.content }}
+          EOF
+
+      - name: Commit and Push
+        run: |
+          git config user.name "Table Bot"
+          git config user.email "bot@github.com"
+          git add demo_table.md
+          git commit -m "Web Update: demo_table.md"
+          git push origin gh-pages
