@@ -2,7 +2,7 @@
 
 | Task | Owner | Status |
 | :--- | :---- | :----- |
-| Initial Setup | User | ✅ Done |
+| Initial Setup | User | X Not Done |
 | GitHub Action | AI | ✅ Done |
 | WYSIWYG Editor | User | ⏳ In Progress |
 
